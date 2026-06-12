@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Protocols</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Base Settings & Typography */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden; /* 스크롤바 완전 차단 */
+        }
+
+        /* Horizontal Scroll Container */
+        .book-container {
+            display: flex;
+            flex-direction: row;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Individual Page */
+        .page {
+            flex: 0 0 100vw;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8vw;
+            position: relative;
+            background-color: #ffffff;
+        }
+
+        /* Page Layout: Text vs Image Ratio Adjusted */
+        .page-content {
+            display: flex;
+            width: 100%;
+            max-width: 1400px; /* 최대 너비 확장 */
+            height: 85vh;
+            gap: 6rem;
+            align-items: center;
+        }
+
+        .text-section {
+            flex: 0.9; /* 텍스트 영역 비율 축소 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .image-section {
+            flex: 1.1; /* 사진 영역 비율 확대 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        /* Typography */
+        .meta {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: #555;
+            margin-bottom: 2.5rem;
+            font-weight: 500;
+        }
+
+        h1 {
+            font-size: 3.5rem; 
+            font-weight: 900;
+            line-height: 1.0;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+            margin-bottom: 2.0rem;
+        }
+
+        h2 {
+            font-size: 3.4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #444;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            font-size: 1.0rem;
+            color: #222;
+            margin-bottom: 1.5rem;
+            max-width: 520px;
+            font-weight: 400;
+            text-align: justify;
+            word-break: keep-all;
+        }
+
+        /* BIGGER VERTICAL IMAGES */
+        .image-section img {
+            max-width: 100%;
+            max-height: 85vh; /* 사진이 위아래로 더 크게 꽉 차도록 확대 */
+            width: auto;
+            height: auto;
+            object-fit: contain; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        }
+
+        /* Page Numbering Layout */
+        .page-number {
+            position: fixed;
+            bottom: 3.5rem;
+            left: 4rem;
+            font-size: 0.9rem;
+            color: #000;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            z-index: 5;
+        }
+
+        /* Scroll Indicator Symbol */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 3.5rem;
+            right: 4rem;
+            font-size: 0.9rem;
+            color: #000;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slidePoint 2s infinite ease-in-out;
+        }
+
+        @keyframes slidePoint {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        /* Conclusion Page Layout */
+        .conclusion-page .text-section {
+            flex: none;
+            width: 100%;
+            align-items: center;
+            text-align: center;
+            padding: 0;
+        }
+        .conclusion-page p {
+            font-size: 1.7rem;
+            max-width: 900px;
+            line-height: 1.6;
+            font-weight: 500;
+            color: #000;
+            margin: 0 auto;
+        }
+
+        /* Tablet / Mobile Responsive */
+        @media (max-width: 900px) {
+            .page-content {
+                flex-direction: column;
+                height: 85vh;
+                gap: 1.5rem;
+            }
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2.4rem; }
+            .image-section img { max-height: 50vh; }
+            .page { padding: 0 5vw; }
+            .page-number { bottom: 2rem; left: 2rem; }
+            .scroll-indicator { bottom: 2rem; right: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-container" id="book">
+        
+        <section class="page">
+            <div class="page-content">
+                <div class="text-section">
+                    <div class="meta">KAIST ID<br>Design Studio I</div>
+                    <h1>What is space?</h1>
+                    <h3>Redefining the Redundant Space</h3>
+                    <p>This installation prompts people to pause briefly on stairs they move unconsciously along. Through this, it explores how a place previously regarded merely as a passageway can acquire special meaning through human physical occupancy. </p>
+                    <p>The installation is broadly divided into three sections. First, people follow footprints to gaze at a window. Next, they are instructed to circle around and linger in the space for a moment. And finally, standing footprints allow them to explore the space they have just passed through. It makes people realize that space is a place where they take time to linger, through their perception. This device demonstrates the context in which space can be defined.</p>
+                </div>
+                <div class="image-section">
+                    <img src="photo1.jpg" alt="Overview of the Protocols">
+                </div>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="page-content">
+                <div class="text-section">
+                    <h2>01:<br>The Gaze</h2>
+                    <h3>Directing Architectural Orientation</h3>
+                    <p>The first installation makes people stop climbing the stairs and stare silently at the window. Through this, people realize that their unconscious actions are interrupted by footprints and that they are spending time in that space.</p>
+                </div> <div class="image-section">
+                    <img src="photo2.jpg" alt="The Gaze">
+                </div>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="page-content">
+                <div class="text-section">
+                    <h2>02:<br>The Orbit</h2>
+                    <h3>Dynamic Spatial Occupation</h3>
+                    <p>The second installation makes people circle around the space. People who are on the phone or have worries tend to hover in that spot. It leads them into the space between the stairs, forcing them to spend time in that area.</p>
+                </div> <div class="image-section">
+                    <img src="photo3.jpg" alt="The Orbit">
+                </div>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="page-content">
+                <div class="text-section">
+                    <h2>03:<br>Stillness</h2>
+                    <h3>Inducing Static Suspension</h3>
+                    <p>The final installation prompts one to look back on their past actions. From the footprints standing still, one reflects on their past self, who used to gaze at windows and spin around. Through this, one observes themselves occupying the space in time and considers what gives context to that space.</p>
+                </div>
+                <div class="image-section">
+                    <img src="photo4.jpg" alt="Stillness">
+                </div>
+            </div>
+        </section>
+
+        <section class="page">
+            <div class="page-content">
+                <div class="text-section">
+                    <h2>Trials &<br>Failures</h2>
+                    <h3>Iterative Behavior Modification</h3>
+                    <p>In the first attempt, footprints and elevator button were installed. While it succeeded in getting people to follow the footprints and look at the window, it failed to induce them to press the button. Therefore, in the second attempt, the elevator button was removed. Some people showed interest in the footprint. However, it did not keep them in the space for long. To encourage them to stay longer, I placed several poetry books. I hope that people would look at the window, open the books, and read a poem. However, people did not actually open them to read.</p>
+                    <p>Through this, I realized that it is people's presence that gives a space a special context. In other words, act of staying for a certain period of time defines a place.</p>
+                </div>
+                <div class="image-section">
+                    <img src="photo5.jpg" alt="Trial 01: Elevator Button">
+                </div>
+            </div>
+        </section>
+
+        <section class="page conclusion-page">
+            <div class="page-content">
+                <div class="text-section">
+                    <h2 style="font-size: 4rem; margin-bottom: 2.5rem; border: none;">You made this space</h2>
+                    <p>Footprints are what clearly demonstrate the act of people staying. Space exists in conjunction with time. Therefore, for context to be added to a space, someone must spend time there. I wanted to explore how space can be defined through the surplus spaces that we pass by in our daily lives.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div class="page-number" id="pageIndicator">01 / 06</div>
+    <div class="scroll-indicator">Scroll <span>&rarr;</span></div>
+
+    <script>
+        const book = document.getElementById('book');
+        const pages = document.querySelectorAll('.page');
+        const indicator = document.getElementById('pageIndicator');
+        let currentPage = 0;
+        const totalPages = pages.length;
+        
+        let lastScrollTime = 0; // 마지막으로 스크롤된 시간 기록 (관성 차단용)
+        const scrollCooldown = 1000; // 1초(1000ms) 동안 추가 스크롤 무시
+
+        function updatePage(index) {
+            if (index < 0 || index >= totalPages) return;
+            currentPage = index;
+            
+            book.scrollTo({
+                left: currentPage * window.innerWidth,
+                behavior: 'smooth'
+            });
+
+            indicator.innerText = `0${currentPage + 1} / 0${totalPages}`;
+        }
+
+        // 트랙패드/마우스 휠 이벤트 (관성 방지 적용)
+        window.addEventListener('wheel', (evt) => {
+            evt.preventDefault();
+            
+            const now = new Date().getTime();
+            // 이전 스크롤 후 1초가 안 지났으면 이벤트 무시 (트랙패드 관성 완벽 차단)
+            if (now - lastScrollTime < scrollCooldown) return;
+
+            // 민감도 조절 (살짝 건드렸을 때 넘어가는 것 방지)
+            if (Math.abs(evt.deltaY) > 20 || Math.abs(evt.deltaX) > 20) {
+                if (evt.deltaY > 0 || evt.deltaX > 0) {
+                    if (currentPage < totalPages - 1) {
+                        updatePage(currentPage + 1);
+                        lastScrollTime = now;
+                    }
+                } else if (evt.deltaY < 0 || evt.deltaX < 0) {
+                    if (currentPage > 0) {
+                        updatePage(currentPage - 1);
+                        lastScrollTime = now;
+                    }
+                }
+            }
+        }, { passive: false });
+
+        // 키보드 방향키 바인딩
+        window.addEventListener('keydown', (evt) => {
+            if (evt.key === 'ArrowRight' || evt.key === 'Right') {
+                if (currentPage < totalPages - 1) updatePage(currentPage + 1);
+            }
+            if (evt.key === 'ArrowLeft' || evt.key === 'Left') {
+                if (currentPage > 0) updatePage(currentPage - 1);
+            }
+        });
+
+        // 윈도우 해상도 변경 시 위치 재조정
+        window.addEventListener('resize', () => {
+            book.scrollLeft = currentPage * window.innerWidth;
+        });
+    </script>
+</body>
+</html>
