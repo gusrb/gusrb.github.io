@@ -34,7 +34,7 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
-            touch-action: none; /* 모바일 터치 충돌 방지 */
+            touch-action: none; 
         }
 
         /* Individual Page */
@@ -172,16 +172,49 @@
 
         /* Tablet / Mobile Responsive */
         @media (max-width: 900px) {
+            .page { padding: 0 6vw; }
             .page-content {
                 flex-direction: column;
-                height: 85vh;
+                height: 100%; /* 고정 높이 해제 */
+                justify-content: center;
                 gap: 1.5rem;
+                padding: 10vh 0; /* 위아래 여백 확보 */
             }
-            h1 { font-size: 3rem; }
-            h2 { font-size: 2.4rem; }
-            .image-section img { max-height: 50vh; }
-            .page { padding: 0 5vw; }
-            .scroll-indicator { bottom: 2rem; right: 2rem; }
+            
+            .text-section {
+                flex: unset;
+                width: 100%;
+                max-height: 45vh; /* 텍스트 영역 최대 높이 지정 */
+                overflow-y: auto; /* 텍스트가 길면 내부에서 위아래로 스크롤 가능하게 처리 */
+                padding-right: 0;
+                /* 내부 스크롤바 숨김 처리 (미관상) */
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .text-section::-webkit-scrollbar {
+                display: none;
+            }
+
+            .image-section {
+                flex: unset;
+                width: 100%;
+                height: auto;
+            }
+            .image-section img { 
+                max-height: 35vh; /* 모바일에서는 사진 크기를 줄여 텍스트 공간 확보 */
+            }
+
+            /* 모바일 환경 폰트 크기 최적화 */
+            .meta { margin-bottom: 1rem; }
+            h1 { font-size: 2.2rem; margin-bottom: 1rem; }
+            h2 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+            h3 { font-size: 1.1rem; margin-bottom: 1rem; }
+            p { font-size: 0.95rem; margin-bottom: 1rem; }
+
+            .conclusion-page h2 { font-size: 2.5rem !important; }
+            .conclusion-page p { font-size: 1.2rem; }
+
+            .scroll-indicator { bottom: 1.5rem; right: 1.5rem; }
         }
     </style>
 </head>
@@ -277,9 +310,8 @@
         const totalPages = pages.length;
         
         let lastScrollTime = 0; 
-        const scrollCooldown = 600; // 전환 속도 약간 빠르게 조정
+        const scrollCooldown = 600; 
 
-        // 페이지 이동 함수
         function updatePage(index) {
             if (index < 0 || index >= totalPages) return;
             currentPage = index;
@@ -292,6 +324,12 @@
 
         // 1. 트랙패드 / 마우스 휠
         window.addEventListener('wheel', (evt) => {
+            // 텍스트 영역 내부의 위아래 스크롤은 페이지 넘김에 영향주지 않도록 예외 처리
+            if (evt.target.closest('.text-section')) {
+                // 상하 스크롤 이벤트는 살려둠
+                return;
+            }
+
             evt.preventDefault();
             
             const now = new Date().getTime();
@@ -312,10 +350,10 @@
             }
         }, { passive: false });
 
-        // 2. 키보드 방향키 (확실하게 작동하도록 document에 걸기)
+        // 2. 키보드 방향키
         document.addEventListener('keydown', (evt) => {
             const now = new Date().getTime();
-            if (now - lastScrollTime < scrollCooldown / 2) return; // 키보드는 쿨다운을 좀 더 짧게
+            if (now - lastScrollTime < scrollCooldown / 2) return; 
 
             if (evt.key === 'ArrowRight' || evt.key === 'Right') {
                 if (currentPage < totalPages - 1) {
@@ -331,36 +369,42 @@
             }
         });
 
-        // 3. 모바일 터치 (강화된 스와이프 로직)
+        // 3. 모바일 터치 스와이프
         let touchStartX = 0;
         let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
 
-        // document 전체에서 터치를 감지하여 인식률 상향
         document.addEventListener('touchstart', (evt) => {
             touchStartX = evt.changedTouches[0].screenX;
+            touchStartY = evt.changedTouches[0].screenY;
         }, { passive: true });
 
         document.addEventListener('touchend', (evt) => {
             touchEndX = evt.changedTouches[0].screenX;
-            handleSwipe();
+            touchEndY = evt.changedTouches[0].screenY;
+            handleSwipe(evt);
         }, { passive: true });
 
-        function handleSwipe() {
+        function handleSwipe(evt) {
+            // 텍스트 영역 내부 스크롤을 방해하지 않기 위해 세로 스와이프는 무시
+            const swipeDistanceX = touchStartX - touchEndX;
+            const swipeDistanceY = touchStartY - touchEndY;
+
+            if (Math.abs(swipeDistanceY) > Math.abs(swipeDistanceX)) {
+                return; // 상하 스크롤 의도가 더 강하면 페이지를 넘기지 않음
+            }
+
             const now = new Date().getTime();
             if (now - lastScrollTime < scrollCooldown) return;
 
-            const swipeDistance = touchStartX - touchEndX;
-            
-            // 40px 이상 움직여야 스와이프로 인정 (너무 예민하거나 둔하지 않게 조정)
-            if (Math.abs(swipeDistance) > 40) {
-                if (swipeDistance > 0) {
-                    // 오른쪽에서 왼쪽으로 스와이프 (다음 페이지)
+            if (Math.abs(swipeDistanceX) > 40) {
+                if (swipeDistanceX > 0) {
                     if (currentPage < totalPages - 1) {
                         updatePage(currentPage + 1);
                         lastScrollTime = now;
                     }
                 } else {
-                    // 왼쪽에서 오른쪽으로 스와이프 (이전 페이지)
                     if (currentPage > 0) {
                         updatePage(currentPage - 1);
                         lastScrollTime = now;
