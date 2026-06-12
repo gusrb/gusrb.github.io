@@ -146,6 +146,9 @@
             align-items: center;
             gap: 10px;
             animation: slidePoint 2s infinite ease-in-out;
+            /* 부드럽게 사라지는 효과 추가 */
+            transition: opacity 0.4s ease, transform 0.4s ease; 
+            opacity: 1;
         }
 
         @keyframes slidePoint {
@@ -175,19 +178,18 @@
             .page { padding: 0 6vw; }
             .page-content {
                 flex-direction: column;
-                height: 100%; /* 고정 높이 해제 */
+                height: 100%; 
                 justify-content: center;
                 gap: 1.5rem;
-                padding: 10vh 0; /* 위아래 여백 확보 */
+                padding: 10vh 0; 
             }
             
             .text-section {
                 flex: unset;
                 width: 100%;
-                max-height: 45vh; /* 텍스트 영역 최대 높이 지정 */
-                overflow-y: auto; /* 텍스트가 길면 내부에서 위아래로 스크롤 가능하게 처리 */
+                max-height: 45vh; 
+                overflow-y: auto; 
                 padding-right: 0;
-                /* 내부 스크롤바 숨김 처리 (미관상) */
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
@@ -201,17 +203,16 @@
                 height: auto;
             }
             .image-section img { 
-                max-height: 35vh; /* 모바일에서는 사진 크기를 줄여 텍스트 공간 확보 */
+                max-height: 35vh; 
             }
 
-            /* 모바일 환경 폰트 크기 최적화 */
             .meta { margin-bottom: 1rem; }
             h1 { font-size: 2.2rem; margin-bottom: 1rem; }
             h2 { font-size: 2.2rem; margin-bottom: 0.5rem; }
             h3 { font-size: 1.1rem; margin-bottom: 1rem; }
             p { font-size: 0.95rem; margin-bottom: 1rem; }
 
-            .conclusion-page h2 { font-size: 2.5rem !important; }
+            .conclusion-page h2 { font-size: 2.5rem !important; margin-bottom: 1.5rem !important; }
             .conclusion-page p { font-size: 1.2rem; }
 
             .scroll-indicator { bottom: 1.5rem; right: 1.5rem; }
@@ -301,17 +302,19 @@
 
     </div>
 
-    <div class="scroll-indicator">Scroll <span>&rarr;</span></div>
+    <div class="scroll-indicator" id="scrollIndicator">Scroll <span>&rarr;</span></div>
 
     <script>
         const book = document.getElementById('book');
         const pages = document.querySelectorAll('.page');
+        const scrollIndicator = document.getElementById('scrollIndicator');
         let currentPage = 0;
         const totalPages = pages.length;
         
         let lastScrollTime = 0; 
         const scrollCooldown = 600; 
 
+        // 페이지 이동 및 인디케이터 제어 함수
         function updatePage(index) {
             if (index < 0 || index >= totalPages) return;
             currentPage = index;
@@ -320,15 +323,22 @@
                 left: currentPage * window.innerWidth,
                 behavior: 'smooth'
             });
+
+            // 마지막 페이지(05번, index 기준 totalPages - 1)이면 스크롤 표시 숨기기
+            if (currentPage === totalPages - 1) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.transform = 'translateX(20px)';
+                scrollIndicator.style.pointerEvents = 'none';
+            } else {
+                scrollIndicator.style.opacity = '1';
+                scrollIndicator.style.transform = 'translateX(0)';
+                scrollIndicator.style.pointerEvents = 'auto';
+            }
         }
 
         // 1. 트랙패드 / 마우스 휠
         window.addEventListener('wheel', (evt) => {
-            // 텍스트 영역 내부의 위아래 스크롤은 페이지 넘김에 영향주지 않도록 예외 처리
-            if (evt.target.closest('.text-section')) {
-                // 상하 스크롤 이벤트는 살려둠
-                return;
-            }
+            if (evt.target.closest('.text-section')) return;
 
             evt.preventDefault();
             
@@ -383,17 +393,14 @@
         document.addEventListener('touchend', (evt) => {
             touchEndX = evt.changedTouches[0].screenX;
             touchEndY = evt.changedTouches[0].screenY;
-            handleSwipe(evt);
+            handleSwipe();
         }, { passive: true });
 
-        function handleSwipe(evt) {
-            // 텍스트 영역 내부 스크롤을 방해하지 않기 위해 세로 스와이프는 무시
+        function handleSwipe() {
             const swipeDistanceX = touchStartX - touchEndX;
             const swipeDistanceY = touchStartY - touchEndY;
 
-            if (Math.abs(swipeDistanceY) > Math.abs(swipeDistanceX)) {
-                return; // 상하 스크롤 의도가 더 강하면 페이지를 넘기지 않음
-            }
+            if (Math.abs(swipeDistanceY) > Math.abs(swipeDistanceX)) return; 
 
             const now = new Date().getTime();
             if (now - lastScrollTime < scrollCooldown) return;
@@ -413,7 +420,6 @@
             }
         }
 
-        // 창 크기 변경 시 레이아웃 재조정
         window.addEventListener('resize', () => {
             book.scrollLeft = currentPage * window.innerWidth;
         });
